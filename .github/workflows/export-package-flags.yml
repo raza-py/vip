@@ -20,17 +20,15 @@ jobs:
         id: export_flags
         shell: bash
         run: |
-          echo "Reading package.json scripts and exporting flags..."
+          echo "Reading package.json scripts and exporting flags"
           has_lint=$(node -e "const s=require('./package.json').scripts||{};process.stdout.write(String(!!s.lint))")
           has_test=$(node -e "const s=require('./package.json').scripts||{};process.stdout.write(String(!!s.test))")
           has_build_full=$(node -e "const s=require('./package.json').scripts||{};process.stdout.write(String(!!s['build:full']))")
           has_build_wasm=$(node -e "const s=require('./package.json').scripts||{};process.stdout.write(String(!!s['build:wasm']))")
-          {
-            echo "has_lint=$has_lint"
-            echo "has_test=$has_test"
-            echo "has_build_full=$has_build_full"
-            echo "has_build_wasm=$has_build_wasm"
-          } >> $GITHUB_OUTPUT
+          echo "has_lint=$has_lint" >> $GITHUB_OUTPUT
+          echo "has_test=$has_test" >> $GITHUB_OUTPUT
+          echo "has_build_full=$has_build_full" >> $GITHUB_OUTPUT
+          echo "has_build_wasm=$has_build_wasm" >> $GITHUB_OUTPUT
       - name: Show exported flags
         run: |
           echo "has_lint: ${{ steps.export_flags.outputs.has_lint }}"
