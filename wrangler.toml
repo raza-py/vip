@@ -2,8 +2,6 @@ name = "vless-proxy-worker"
 main = "src/index.tsx"
 compatibility_date = "2024-03-20"
 
-wasm_modules = ["src/rust/pkg/vless_parser_bg.wasm"]
-
 analytics_engine_datasets = [{ binding = "ANALYTICS", dataset = "vless_analytics" }]
 
 [vars]

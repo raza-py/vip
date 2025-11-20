@@ -22,11 +22,11 @@ export const UserPanel = ({ user }: { user: User }) => {
                             {/* Stats will be loaded here by HTMX */}
                         </div>
                         <div x-data="{ qrCodeUrl: '' }">
-                            <button @click="qrCodeUrl = `/api/qr?data=...`" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            <button {...{'@click': "qrCodeUrl = `/api/qr?data=...`"}} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                 Show QR Code
                             </button>
                             <template x-if="qrCodeUrl">
-                                <img :src="qrCodeUrl" />
+                                <img {...{':src': 'qrCodeUrl'}} />
                             </template>
                         </div>
                          <div x-data="{ timeLeft: '' }" x-init="

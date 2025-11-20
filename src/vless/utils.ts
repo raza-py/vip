@@ -1,5 +1,5 @@
-import vlessParserWasm from '../../rust/pkg/vless_parser_bg.wasm';
-import { parse_vless_header, VlessHeader } from '../../rust/pkg/vless_parser';
+import vlessParserWasm from '../../src/rust/pkg/vless_parser_bg.wasm';
+import { parse_vless_header, VlessHeader } from '../../src/rust/pkg/vless_parser';
 
 let wasmInitialized = false;
 
