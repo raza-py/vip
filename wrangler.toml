@@ -4,7 +4,7 @@ name = "vless-proxy-worker"
 # 1) Pass it on the CLI when deploying: `npx wrangler deploy --account-id $CF_ACCOUNT_ID --name vless-proxy-worker`
 # 2) Use an env-specific block below (uncomment and set in local deploys), or
 # 3) Keep this blank and rely on CI secrets to pass `--account-id` at runtime.
-account_id = ""
+
 main = "src/index.tsx"
 compatibility_date = "2024-03-20"
 
