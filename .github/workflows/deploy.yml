@@ -1,18 +1,24 @@
-name: Deploy to Cloudflare Workers
+# .github/workflows/deploy.yml
 
+name: Deploy VLESS Worker to Cloudflare
+
+# این Workflow در هر Push به شاخه main اجرا می شود.
 on:
   push:
     branches:
       - main
+  # همچنین می توانید به صورت دستی (Manually) اجرا کنید
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Build & Deploy
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # --- 1. تنظیم محیط ---
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -20,31 +26,52 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
 
       - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
+        # از پکیج npm برای نصب wasm-pack استفاده می کنیم تا با محیط node هماهنگ باشد
+        run: npm install -g wasm-pack
 
-      - name: Install dependencies
+      # --- 2. نصب وابستگی‌ها ---
+      # (ما از npm استفاده می کنیم، پس بهتر است نصب ها را با npm انجام دهیم)
+      - name: Install JavaScript Dependencies
+        # این دستور، پکیج های اصلی و DevDependencies را نصب می کند.
         run: npm install
 
-      - name: Build Wasm
-        run: wasm-pack build src/rust --out-dir src/rust/pkg
+      # --- 3. بیلد (ساختن) ---
 
-      - name: Build Worker for obfuscation
+      # گام A: کامپایل Rust به WebAssembly (از اسکریپت package.json استفاده می کنیم)
+      - name: Build Wasm (Rust to wasm)
+        # دستور build:wasm در package.json شما تعریف شده است
+        run: npm run build:wasm
+
+      # گام B: دیپلوی آزمایشی برای ساخت فایل JS توسط Wrangler
+      # ما از wrangler deploy --dry-run استفاده می کنیم تا فایل JS ساخته شود
+      - name: Dry Run Deploy (Generate Worker JS)
         run: npx wrangler deploy --dry-run --outdir dist --name vless-proxy-worker
 
+      # گام C: پیدا کردن فایل JS تولید شده (مسیر فایل را در متغیر خروجی ذخیره می کنیم)
       - name: Find Worker JS file
         id: find_worker_file
         run: |
+          # Wrangler نام فایل را به صورت هش (Hash) شده می سازد.
+          # ما اولین فایل JS داخل پوشه dist را پیدا می کنیم.
           file_path=$(find dist -type f -name "*.js" | head -n 1)
           echo "Found worker file: $file_path"
           echo "worker_file=$file_path" >> $GITHUB_OUTPUT
       
+      # گام D: مخفی‌سازی کد (Obfuscation)
+      # فایل JS پیدا شده را Obfuscate می کنیم و روی خودش overwrite می کنیم
       - name: Obfuscate Worker JS
-        run: npx javascript-obfuscator ${{ steps.find_worker_file.outputs.worker_file }} --output ${{ steps.find_worker_file.outputs.worker_file }}
+        # ما از دستور npm استفاده می کنیم چون javascript-obfuscator در devDependencies شما نصب شده است
+        run: npx javascript-obfuscator ${{ steps.find_worker_file.outputs.worker_file }} --output ${{ steps.find_worker_file.outputs.worker_file }} --compact true
 
-      - name: Deploy to Cloudflare Workers
-        run: npx wrangler deploy ${{ steps.find_worker_file.outputs.worker_file }} --name vless-proxy-worker
+      # --- 4. دیپلوی نهایی ---
+
+      - name: Final Deploy to Cloudflare Workers
+        # این بار از wrangler publish استفاده می کنیم و محتوای پوشه dist را می فرستیم
+        run: npx wrangler publish --name vless-proxy-worker --outdir dist
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
