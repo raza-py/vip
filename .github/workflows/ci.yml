@@ -92,6 +92,22 @@ jobs:
         shell: bash
         continue-on-error: false
 
+      - name: Add version comment and rename to _worker.js
+        if: steps.pkg.outputs.has_build_full == 'true' && success() && (hashFiles('dist/index.js') != '')
+        run: |
+          if [ -s dist/index.js ]; then
+            VERSION_BLOCK="// <!--GAMFC-->version base on commit: ${{ github.sha }} - last update: $(date -u '+%Y-%m-%d %H:%M:%S') UTC <!--GAMFC-END-->."
+            {
+              printf '%b\n\n' "$VERSION_BLOCK"
+              cat dist/index.js
+            } > dist/_worker.js
+            echo "Prepended version comment and renamed to dist/_worker.js."
+          else
+            echo "⚠️ dist/index.js is missing or empty. Skipping version comment insertion."
+          fi
+        shell: bash
+        continue-on-error: false
+
       - name: Show dist files (optional)
         if: always()
         run: |
