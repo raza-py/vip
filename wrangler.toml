@@ -2,7 +2,11 @@ name = "vless-proxy-worker"
 main = "src/index.tsx"
 compatibility_date = "2024-03-20"
 
-analytics_engine_datasets = [{ binding = "ANALYTICS", dataset = "vless_analytics" }]
+# Analytics Engine dataset binding removed to avoid deployment error when
+# Analytics Engine is not enabled on the Cloudflare account. If you want to
+# use Analytics Engine, re-enable the following line and enable the feature
+# in the Cloudflare Dashboard for your account.
+# analytics_engine_datasets = [{ binding = "ANALYTICS", dataset = "vless_analytics" }]
 
 [vars]
 ADMIN_SECRET = "your-strong-secret"
