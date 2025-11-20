@@ -2,6 +2,10 @@ name = "vless-proxy-worker"
 main = "src/index.tsx"
 compatibility_date = "2024-03-20"
 
+wasm_modules = ["src/rust/pkg/vless_parser_bg.wasm"]
+
+analytics_engine_datasets = [{ binding = "ANALYTICS", dataset = "vless_analytics" }]
+
 [vars]
 ADMIN_SECRET = "your-strong-secret"
 
@@ -10,13 +14,5 @@ binding = "DB"
 database_name = "vless-db"
 database_id = "your-d1-database-id"
 
-[[wasm_modules]]
-name = "VLESS_PARSER"
-path = "src/rust/pkg/vless_parser_bg.wasm"
-
 [build]
 command = "wasm-pack build src/rust && npx javascript-obfuscator ./wrangler-dist --output ./wrangler-dist"
-
-[analytics_engine_datasets]
-binding = "ANALYTICS"
-dataset = "vless_analytics"
