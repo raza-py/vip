@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Read package.json scripts
+        id: pkg
+        run: |
+          echo "Reading package.json scripts and exporting flags"
+          echo "has_lint=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s.lint))\")" >> $GITHUB_OUTPUT
+          echo "has_test=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s.test))\")" >> $GITHUB_OUTPUT
+          echo "has_build_full=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s['build:full']))\")" >> $GITHUB_OUTPUT
+          echo "has_build_wasm=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s['build:wasm']))\")" >> $GITHUB_OUTPUT
+
+      - name: Run linter (if defined)
+        if: steps.pkg.outputs.has_lint == 'true'
+        run: npm run lint
+
+      - name: Run tests (if defined)
+        if: steps.pkg.outputs.has_test == 'true'
+        run: |
+          npm run test -- --run
+
+      - name: Build wasm (if defined)
+        if: steps.pkg.outputs.has_build_wasm == 'true'
+        run: npm run build:wasm
+
+      - name: Build full bundle (if defined)
+        if: steps.pkg.outputs.has_build_full == 'true'
+        run: npm run build:full
+
+      - name: Show dist files (optional)
+        if: always()
+        run: |
+          echo "Workspace files (top-level):"
+          ls -la | sed -n '1,200p'
