@@ -28,7 +28,9 @@
     "biome": "^0.3.3",
     "drizzle-kit": "^0.21.4",
     "javascript-obfuscator": "^4.1.0",
-    "vitest": "^1.6.0",
+    "miniflare": "^4.20251118.0",
+    "vitest": "^1.6.1",
+    "vitest-environment-miniflare": "^2.14.4",
     "wrangler": "^4.49.1"
   }
 }
