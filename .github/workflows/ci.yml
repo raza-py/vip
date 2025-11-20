@@ -79,6 +79,19 @@ jobs:
         if: steps.pkg.outputs.has_build_full == 'true'
         run: npm run build:full
 
+      - name: Obfuscate dist/index.js (if build:full ran)
+        if: steps.pkg.outputs.has_build_full == 'true'
+        run: |
+          echo "Running javascript-obfuscator on dist/index.js (if exists)"
+          if [ -f dist/index.js ]; then
+            npm run obfuscate
+            echo "Obfuscation complete."
+          else
+            echo "dist/index.js not found, skipping obfuscation."
+          fi
+        shell: bash
+        continue-on-error: false
+
       - name: Show dist files (optional)
         if: always()
         run: |

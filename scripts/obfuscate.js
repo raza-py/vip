@@ -22,15 +22,21 @@ function findWorkerJs(dir) {
     const distDir = path.resolve(process.cwd(), 'dist');
     const workerFile = findWorkerJs(distDir);
     if (!workerFile) {
-      console.error('No .js worker file found in dist (searched', distDir, ').');
+      console.error('[obfuscate] ❌ No .js worker file found in dist (searched', distDir, ').');
       process.exitCode = 2;
       return;
     }
-    console.log('Found worker file:', workerFile);
+    console.log(`[obfuscate] ✅ Found worker file: ${workerFile}`);
 
     const code = fs.readFileSync(workerFile, 'utf8');
 
-    console.log('Obfuscating...');
+    if (!code || code.trim().length === 0) {
+      console.error(`[obfuscate] ❌ Worker file is empty: ${workerFile}`);
+      process.exitCode = 3;
+      return;
+    }
+
+    console.log('[obfuscate] 🚀 Obfuscating...');
     const obfuscated = obfuscate(code, {
       compact: true,
       controlFlowFlattening: true,
@@ -50,9 +56,9 @@ function findWorkerJs(dir) {
     });
 
     fs.writeFileSync(workerFile, obfuscated.getObfuscatedCode(), 'utf8');
-    console.log('Obfuscation complete. File overwritten at:', workerFile);
+    console.log(`[obfuscate] 🎉 Obfuscation complete. File overwritten at: ${workerFile}`);
   } catch (err) {
-    console.error('Obfuscation failed:', err);
+    console.error('[obfuscate] ❌ Obfuscation failed:', err);
     process.exitCode = 1;
   }
 })();
