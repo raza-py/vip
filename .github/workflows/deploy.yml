@@ -3,6 +3,15 @@ name: CI Deploy
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 3 * * *'
+
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:
