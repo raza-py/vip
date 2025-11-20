@@ -14,7 +14,13 @@ ADMIN_SECRET = "your-strong-secret"
 [[d1_databases]]
 binding = "DB"
 database_name = "vless-db"
-database_id = "your-d1-database-id"
+# The D1 `database_id` must be a real database id (UUID) from Cloudflare.
+# It is currently a placeholder which causes the validation error (10021).
+# To fix: replace the line below with your actual database id, for example:
+# database_id = "01234567-89ab-cdef-0123-456789abcdef"
+# If you don't need D1 for this deployment, you can comment out or remove
+# the whole `[[d1_databases]]` block.
+# database_id = "your-d1-database-id"
 
 [build]
 command = "npm run build:wasm"
