@@ -37,10 +37,10 @@ jobs:
         id: pkg
         run: |
           echo "Reading package.json scripts and exporting flags"
-          echo "has_lint=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s.lint))\")" >> $GITHUB_OUTPUT
-          echo "has_test=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s.test))\")" >> $GITHUB_OUTPUT
-          echo "has_build_full=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s['build:full']))\")" >> $GITHUB_OUTPUT
-          echo "has_build_wasm=$(node -e \"const s=require('./package.json').scripts||{};process.stdout.write(String(!!s['build:wasm']))\")" >> $GITHUB_OUTPUT
+          echo "has_lint=$(node -e 'const s=require("./package.json").scripts||{};process.stdout.write(String(!!s.lint))')" >> $GITHUB_OUTPUT
+          echo "has_test=$(node -e 'const s=require("./package.json").scripts||{};process.stdout.write(String(!!s.test))')" >> $GITHUB_OUTPUT
+          echo "has_build_full=$(node -e 'const s=require("./package.json").scripts||{};process.stdout.write(String(!!s["build:full"]))')" >> $GITHUB_OUTPUT
+          echo "has_build_wasm=$(node -e 'const s=require("./package.json").scripts||{};process.stdout.write(String(!!s["build:wasm"]))')" >> $GITHUB_OUTPUT
 
       - name: Run linter (if defined)
         if: steps.pkg.outputs.has_lint == 'true'
@@ -48,8 +48,7 @@ jobs:
 
       - name: Run tests (if defined)
         if: steps.pkg.outputs.has_test == 'true'
-        run: |
-          npm run test -- --run
+        run: npm run test -- --run
 
       - name: Build wasm (if defined)
         if: steps.pkg.outputs.has_build_wasm == 'true'
