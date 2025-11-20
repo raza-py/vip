@@ -2,11 +2,12 @@ name: CI Deploy
 
 on:
   push:
-    push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
-  workflow_dispatch: {}
+    branches:
+      - main
+  workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'
     
