@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 #[wasm_bindgen]
-#[derive(Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub enum AddressType {
     IPv4 = 1,
     Domain = 2,
